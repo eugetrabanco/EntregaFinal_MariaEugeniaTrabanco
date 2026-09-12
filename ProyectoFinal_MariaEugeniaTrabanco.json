@@ -1,0 +1,1105 @@
+{
+  "name": "ProyectoFinal_MariaEugeniaTrabanco",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": []
+        },
+        "simple": false,
+        "maxResults": 1,
+        "filters": {
+          "q": "subject: \"Comprobante\""
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -144,
+        -32
+      ],
+      "id": "9bc1aba3-88ec-4ff2-bf54-c9d81ed75ffe",
+      "name": "Gmail Trigger Nuevo Correo Paciente",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "f97NiZ1GpvoCru3L",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8eb0e76a-e066-4063-b950-9fa845e612a5",
+              "leftValue": "={{ (($json.text || '') + ($json.textAsHtml || '')).replace(/<[^>]*>?/gm, '').trim().length > 0 }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "916b7f15-c65a-4b29-b7cf-402a36ca0fdc",
+              "leftValue": "={{ Object.keys($binary || {}).length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        80,
+        -32
+      ],
+      "id": "6fdc4c6d-a7a8-4dc7-83df-537f9a43aa6f",
+      "name": "¿El correo tiene texto y archivo adjunto válido?"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appwGUTlhjMS0QVwZ",
+          "mode": "list",
+          "cachedResultName": "ProyectoFinal_MariaEugeniaTrabanco",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbljKRkKURT95M38H",
+          "mode": "list",
+          "cachedResultName": "Transacciones",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ/tbljKRkKURT95M38H"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nombre paciente (ID)": "={{ $json.id }}",
+            "Estado": "Pendiente",
+            "Fecha de registro": "={{ $now }}",
+            "Correo paciente": "={{ $('Gmail Trigger Nuevo Correo Paciente').item.json.from.value[0].address }}",
+            "ID transaccion": "={{ $('Gmail Trigger Nuevo Correo Paciente').item.json.id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID transaccion",
+              "displayName": "ID transaccion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre paciente (ID)",
+              "displayName": "Nombre paciente (ID)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Servicio",
+              "displayName": "Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Monto",
+              "displayName": "Monto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha sesión",
+              "displayName": "Fecha sesión",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Faltante",
+                  "value": "Faltante"
+                },
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Error IA",
+                  "value": "Error IA"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de pago",
+              "displayName": "Fecha de pago",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Correo paciente",
+              "displayName": "Correo paciente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de registro",
+              "displayName": "Fecha de registro",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre y apellido comprobante",
+              "displayName": "Nombre y apellido comprobante",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": "={{ true }}"
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        512,
+        -144
+      ],
+      "id": "b49c5ca8-e684-4f8d-b90f-51bc3e17bf80",
+      "name": "Registro Airtable - Estado: Pendiente",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "UIBAGjjNaBS8j1a8",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appwGUTlhjMS0QVwZ",
+          "mode": "list",
+          "cachedResultName": "ProyectoFinal_MariaEugeniaTrabanco",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbljKRkKURT95M38H",
+          "mode": "list",
+          "cachedResultName": "Transacciones",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ/tbljKRkKURT95M38H"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Faltante",
+            "ID transaccion": "={{ $('Gmail Trigger Nuevo Correo Paciente').item.json.id }}",
+            "Fecha de registro": "={{ $now }}",
+            "Correo paciente": "={{ $json.From }}"
+          },
+          "matchingColumns": [
+            "Correo paciente"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID transaccion",
+              "displayName": "ID transaccion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre paciente (ID)",
+              "displayName": "Nombre paciente (ID)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Servicio",
+              "displayName": "Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Monto",
+              "displayName": "Monto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de pago",
+              "displayName": "Fecha de pago",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Faltante",
+                  "value": "Faltante"
+                },
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Error IA",
+                  "value": "Error IA"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha sesión",
+              "displayName": "Fecha sesión",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Correo paciente",
+              "displayName": "Correo paciente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de registro",
+              "displayName": "Fecha de registro",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        112
+      ],
+      "id": "1632eb33-93e6-403a-8d9a-ef3cd3d33231",
+      "name": "Registro Airtable - Estado: Faltante",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "UIBAGjjNaBS8j1a8",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appwGUTlhjMS0QVwZ",
+          "mode": "list",
+          "cachedResultName": "ProyectoFinal_MariaEugeniaTrabanco",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblTKGKeQk5EzAHfE",
+          "mode": "list",
+          "cachedResultName": "Base de Datos Pacientes",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ/tblTKGKeQk5EzAHfE"
+        },
+        "filterByFormula": "={Correo paciente} = '{{ $('Gmail Trigger Nuevo Correo Paciente').item.json.from.value[0].address }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        -144
+      ],
+      "id": "b1847ebd-9357-4cfe-a04b-2b4bed5b2935",
+      "name": "Search records",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "UIBAGjjNaBS8j1a8",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Procesa los siguientes datos de la transacción actual :\n\n---\nCONTEXTO DE AIRTABLE:\n- Monto esperado del paciente: {{ $('Search records').item.json.fields['Monto sesión'] }}\n---\n\n---\nDATOS DEL CORREO:\n- Cuerpo del correo / Mensaje del paciente: \n{{ $('Gmail Trigger Nuevo Correo Paciente').item.json.text }}\n---\n\n---\nADJUNTO:\n- Analiza la imagen o PDF adjunto en este mensaje para extraer el comprobante de pago.\n---\n\nExtrae la siguiente información y entrégala estructurada:\n- servicio: especificado en el cuerpo del mail.\n- monto_recibido: número exacto que figura en el comprobante.\n- fecha_pago: fecha extraída del comprobante.\n- fecha_sesion: fecha especificada en el cuerpo del mail.\n- nombre_comprobante: nombre y apellido extraídos del comprobante.\n- validacion_montos: indicador o la frase \"los montos son distintos\" si no coinciden con el contexto de Airtable.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Responde ÚNICAMENTE con un objeto JSON válido que coincida exactamente con el esquema requerido. No incluyas texto conversacional, saludos ni explicaciones fuera del JSON.\n\nEres un asistente experto en contabilidad y extracción automatizada de datos. Tu tarea es analizar comprobantes de pago (imágenes/PDFs) y correos electrónicos de pacientes para validar transacciones.\n\nReglas estrictas:\n1. No inventes datos. Si un dato no se encuentra en el comprobante o en el correo, devuélvelo como null o cadena vacía.\n2. Compara estrictamente el monto del comprobante con el monto esperado de la base de datos que se te proporcionará.\n3. Si el monto del comprobante y el monto esperado NO coinciden exactamente, debes escribir de manera obligatoria la frase exacta \"los montos son distintos\" en el campo correspondiente. De lo contrario, déjalo vacío o indica que coinciden.\n4. Devuelve la salida exclusivamente en formato JSON estructurado, respetando el esquema requerido."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        960,
+        -160
+      ],
+      "id": "02770ddc-3c8f-4920-b05e-2d9dd37dca12",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "waitBetweenTries": 5,
+      "executeOnce": false,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "maxTokens": 500,
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        48
+      ],
+      "id": "c898bf59-0bd5-4303-bd78-2feeeab615cb",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "ImKOwUHc6XSh2IG6",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"servicio\": { \"type\": \"string\" },\n    \"monto_recibido\": { \"type\": \"string\" },\n    \"fecha_pago\": { \"type\": \"string\" },\n    \"fecha_sesion\": { \"type\": \"string\" },\n    \"nombre_comprobante\": { \"type\": \"string\" },\n    \"validacion_montos\": { \"type\": \"string\" }\n  },\n  \"required\": [\"servicio\", \"monto_recibido\", \"fecha_pago\", \"fecha_sesion\", \"nombre_comprobante\", \"validacion_montos\"]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1136,
+        48
+      ],
+      "id": "22d69713-f66e-42dd-adf5-c4ea7e6bdf43",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Gmail Trigger Nuevo Correo Paciente').item.json.id }}",
+        "contextWindowLength": 1
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        1008,
+        16
+      ],
+      "id": "c4ebfa30-6b05-4536-8562-4dbaeb210e1d",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appwGUTlhjMS0QVwZ",
+          "mode": "list",
+          "cachedResultName": "ProyectoFinal_MariaEugeniaTrabanco",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbljKRkKURT95M38H",
+          "mode": "list",
+          "cachedResultName": "Transacciones",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ/tbljKRkKURT95M38H"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Error IA"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "ID transaccion",
+              "displayName": "ID transaccion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre paciente (ID)",
+              "displayName": "Nombre paciente (ID)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Servicio",
+              "displayName": "Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Monto",
+              "displayName": "Monto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha sesión",
+              "displayName": "Fecha sesión",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Faltante",
+                  "value": "Faltante"
+                },
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Error IA",
+                  "value": "Error IA"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de pago",
+              "displayName": "Fecha de pago",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Correo paciente",
+              "displayName": "Correo paciente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de registro",
+              "displayName": "Fecha de registro",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre y apellido comprobante",
+              "displayName": "Nombre y apellido comprobante",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        112
+      ],
+      "id": "fdfafdbe-81f4-4e9b-a6c2-25455f271756",
+      "name": "Update record",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "UIBAGjjNaBS8j1a8",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "airtableOAuth2Api",
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appwGUTlhjMS0QVwZ",
+          "mode": "list",
+          "cachedResultName": "ProyectoFinal_MariaEugeniaTrabanco",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbljKRkKURT95M38H",
+          "mode": "list",
+          "cachedResultName": "Transacciones",
+          "cachedResultUrl": "https://airtable.com/appwGUTlhjMS0QVwZ/tbljKRkKURT95M38H"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID transaccion": "={{ $('Gmail Trigger Nuevo Correo Paciente').item.json.id }}",
+            "Servicio": "={{ $json.output.servicio }}",
+            "Monto sesión": "={{ $json.output.monto_recibido }}",
+            "Fecha de pago": "={{ $json.output.fecha_pago }}",
+            "Fecha sesión": "={{ $json.output.fecha_sesion }}",
+            "Nombre y apellido comprobante": "={{ $json.output.nombre_comprobante }}",
+            "Correo paciente": "={{ $('Gmail Trigger Nuevo Correo Paciente').item.json.from.value[0].address }}",
+            "Fecha de registro": "={{ $now }}",
+            "Estado": "Procesado por IA"
+          },
+          "matchingColumns": [
+            "Correo paciente"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "ID transaccion",
+              "displayName": "ID transaccion",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre paciente (ID)",
+              "displayName": "Nombre paciente (ID)",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "array",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Servicio",
+              "displayName": "Servicio",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Monto sesión",
+              "displayName": "Monto sesión",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha sesión",
+              "displayName": "Fecha sesión",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Faltante",
+                  "value": "Faltante"
+                },
+                {
+                  "name": "Pendiente",
+                  "value": "Pendiente"
+                },
+                {
+                  "name": "Error IA",
+                  "value": "Error IA"
+                },
+                {
+                  "name": "Procesado por IA",
+                  "value": "Procesado por IA"
+                },
+                {
+                  "name": "Aprobado por Humano",
+                  "value": "Aprobado por Humano"
+                },
+                {
+                  "name": "Rechazado",
+                  "value": "Rechazado"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de pago",
+              "displayName": "Fecha de pago",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Correo paciente",
+              "displayName": "Correo paciente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Fecha de registro",
+              "displayName": "Fecha de registro",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Nombre y apellido comprobante",
+              "displayName": "Nombre y apellido comprobante",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        1328,
+        -256
+      ],
+      "id": "c19eba4f-7441-4594-89bc-9b6d735043a4",
+      "name": "Update record1",
+      "credentials": {
+        "airtableOAuth2Api": {
+          "id": "UIBAGjjNaBS8j1a8",
+          "name": "Airtable account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Recupera el archivo binario del nodo de Gmail y se lo inyecta al flujo actual\nconst gmailItem = $('Gmail Trigger Nuevo Correo Paciente').first();\n\nfor (const item of $input.all()) {\n  if (gmailItem && gmailItem.binary) {\n    item.binary = gmailItem.binary;\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        -144
+      ],
+      "id": "f75822e9-2d12-48ef-aa40-66b872f2ed11",
+      "name": "Code in JavaScript1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger Nuevo Correo Paciente": {
+      "main": [
+        [
+          {
+            "node": "¿El correo tiene texto y archivo adjunto válido?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿El correo tiene texto y archivo adjunto válido?": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Registro Airtable - Estado: Faltante",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Registro Airtable - Estado: Pendiente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registro Airtable - Estado: Pendiente": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Update record1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "df99c686-cc04-4a2d-a18e-145d2ac21c9f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6c34a31e4a412274151854daa1489cd4c4484e9ac973f8737186ad646309deb8"
+  },
+  "nodeGroups": [],
+  "id": "v2qgASXrakFcC6Gm",
+  "tags": []
+}
