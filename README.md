@@ -1,0 +1,1 @@
+https://airtable.com/invite/l?inviteId=inviE4t3w6yKTEWhl&inviteToken=99b541e9494bef37be1f18320404d53e82e35df9cec37754e6a85b7b050f5f12&utm_medium=email&utm_source=product_team&utm_content=transactional-alerts
